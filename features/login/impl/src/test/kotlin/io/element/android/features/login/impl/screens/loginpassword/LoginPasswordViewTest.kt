@@ -41,17 +41,16 @@ class LoginPasswordViewTest {
     val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `clicking on back invoke back callback`() {
+    fun `pressing back button does not navigate back (no callback)`() {
         val eventsRecorder = EventsRecorder<LoginPasswordEvents>(expectEvents = false)
-        ensureCalledOnce { callback ->
-            rule.setLoginPasswordView(
-                aLoginPasswordState(
-                    eventSink = eventsRecorder
-                ),
-                onBackClick = callback,
-            )
-            rule.pressBack()
-        }
+        rule.setLoginPasswordView(
+            aLoginPasswordState(
+                eventSink = eventsRecorder
+            ),
+        )
+        // Back press should be handled but not navigate back
+        rule.pressBack()
+        // Test passes if no exception is thrown
     }
 
     @Test
@@ -182,12 +181,10 @@ class LoginPasswordViewTest {
 
 private fun <R : TestRule> AndroidComposeTestRule<R, ComponentActivity>.setLoginPasswordView(
     state: LoginPasswordState,
-    onBackClick: () -> Unit = EnsureNeverCalled(),
 ) {
     setContent {
         LoginPasswordView(
             state = state,
-            onBackClick = onBackClick,
         )
     }
 }

@@ -12,6 +12,8 @@ import io.element.android.appconfig.AuthenticationConfig
 import io.element.android.features.enterprise.test.FakeEnterpriseService
 import io.element.android.features.login.impl.accountprovider.AccountProviderDataSource
 import io.element.android.libraries.architecture.AsyncData
+import io.element.android.libraries.core.meta.BuildMeta
+import io.element.android.libraries.matrix.test.core.aBuildMeta
 import io.element.android.libraries.matrix.api.core.SessionId
 import io.element.android.libraries.matrix.test.AN_EXCEPTION
 import io.element.android.libraries.matrix.test.A_HOMESERVER
@@ -129,8 +131,12 @@ class LoginPasswordPresenterTest {
     private fun createLoginPasswordPresenter(
         authenticationService: FakeMatrixAuthenticationService = FakeMatrixAuthenticationService(),
         accountProviderDataSource: AccountProviderDataSource = AccountProviderDataSource(FakeEnterpriseService()),
+        defaultLoginUserStory: DefaultLoginUserStory = DefaultLoginUserStory(),
+        buildMeta: BuildMeta = aBuildMeta()
     ): LoginPasswordPresenter = LoginPasswordPresenter(
         authenticationService = authenticationService,
         accountProviderDataSource = accountProviderDataSource,
+        defaultLoginUserStory = defaultLoginUserStory,
+        buildMeta = buildMeta,
     )
 }
