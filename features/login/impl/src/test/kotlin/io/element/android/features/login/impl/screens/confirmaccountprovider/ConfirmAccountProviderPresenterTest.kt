@@ -12,6 +12,7 @@ import app.cash.molecule.moleculeFlow
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import io.element.android.appconfig.AuthenticationConfig
+import io.element.android.features.enterprise.api.EnterpriseService
 import io.element.android.features.enterprise.test.FakeEnterpriseService
 import io.element.android.features.login.impl.DefaultLoginUserStory
 import io.element.android.features.login.impl.accountprovider.AccountProviderDataSource
@@ -354,7 +355,8 @@ class ConfirmAccountProviderPresenterTest {
 
     private fun createConfirmAccountProviderPresenter(
         params: ConfirmAccountProviderPresenter.Params = ConfirmAccountProviderPresenter.Params(isAccountCreation = false),
-        accountProviderDataSource: AccountProviderDataSource = AccountProviderDataSource(FakeEnterpriseService()),
+        enterpriseService: EnterpriseService = FakeEnterpriseService(),
+        accountProviderDataSource: AccountProviderDataSource = AccountProviderDataSource(enterpriseService),
         matrixAuthenticationService: MatrixAuthenticationService = FakeMatrixAuthenticationService(),
         defaultOidcActionFlow: OidcActionFlow = FakeOidcActionFlow(),
         defaultLoginUserStory: DefaultLoginUserStory = DefaultLoginUserStory(),
@@ -368,5 +370,6 @@ class ConfirmAccountProviderPresenterTest {
             defaultLoginUserStory = defaultLoginUserStory,
             webClientUrlForAuthenticationRetriever = webClientUrlForAuthenticationRetriever,
         ),
+        enterpriseService = enterpriseService,
     )
 }

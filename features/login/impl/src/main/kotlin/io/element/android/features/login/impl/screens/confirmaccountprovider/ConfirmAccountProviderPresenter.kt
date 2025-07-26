@@ -10,10 +10,13 @@ package io.element.android.features.login.impl.screens.confirmaccountprovider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import io.element.android.features.enterprise.api.EnterpriseService
+import io.element.android.features.enterprise.api.canConnectToAnyHomeserver
 import io.element.android.features.login.impl.accountprovider.AccountProviderDataSource
 import io.element.android.features.login.impl.login.LoginHelper
 import io.element.android.libraries.architecture.Presenter
@@ -22,6 +25,7 @@ class ConfirmAccountProviderPresenter @AssistedInject constructor(
     @Assisted private val params: Params,
     private val accountProviderDataSource: AccountProviderDataSource,
     private val loginHelper: LoginHelper,
+    private val enterpriseService: EnterpriseService,
 ) : Presenter<ConfirmAccountProviderState> {
     data class Params(
         val isAccountCreation: Boolean,
@@ -38,6 +42,10 @@ class ConfirmAccountProviderPresenter @AssistedInject constructor(
         val localCoroutineScope = rememberCoroutineScope()
 
         val loginMode by loginHelper.collectLoginMode()
+        
+        val canChangeAccountProvider = remember {
+            enterpriseService.canConnectToAnyHomeserver()
+        }
 
         fun handleEvents(event: ConfirmAccountProviderEvents) {
             when (event) {
@@ -57,6 +65,7 @@ class ConfirmAccountProviderPresenter @AssistedInject constructor(
             accountProvider = accountProvider,
             isAccountCreation = params.isAccountCreation,
             loginMode = loginMode,
+            canChangeAccountProvider = canChangeAccountProvider,
             eventSink = ::handleEvents
         )
     }
