@@ -85,14 +85,16 @@ fun ConfirmAccountProviderView(
                         .fillMaxWidth()
                         .testTag(TestTags.loginContinue)
                 )
-                TextButton(
-                    text = stringResource(id = R.string.screen_account_provider_change),
-                    onClick = onChange,
-                    enabled = !isLoading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag(TestTags.loginChangeServer)
-                )
+                if (state.canChangeAccountProvider) {
+                    TextButton(
+                        text = stringResource(id = R.string.screen_account_provider_change),
+                        onClick = onChange,
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(TestTags.loginChangeServer)
+                    )
+                }
             }
         }
     ) {

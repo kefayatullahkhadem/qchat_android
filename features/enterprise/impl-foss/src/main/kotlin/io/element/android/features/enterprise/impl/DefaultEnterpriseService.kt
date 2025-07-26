@@ -25,8 +25,9 @@ class DefaultEnterpriseService : EnterpriseService {
 
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
 
-    override fun defaultHomeserverList(): List<String> = emptyList()
-    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = true
+    override fun defaultHomeserverList(): List<String> = listOf("https://chat.testers.fun")
+    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = 
+        homeserverUrl == "https://chat.testers.fun"
 
     override fun semanticColorsLight(): SemanticColors = compoundColorsLight
 
