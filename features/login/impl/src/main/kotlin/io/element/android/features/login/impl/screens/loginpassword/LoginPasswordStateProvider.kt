@@ -28,11 +28,13 @@ fun aLoginPasswordState(
     accountProvider: AccountProvider = anAccountProvider(),
     formState: LoginFormState = LoginFormState.Default,
     loginAction: AsyncData<SessionId> = AsyncData.Uninitialized,
+    appName: String = "Element X",
     eventSink: (LoginPasswordEvents) -> Unit = {},
 ) = LoginPasswordState(
     accountProvider = accountProvider,
     formState = formState,
     loginAction = loginAction,
+    appName = appName,
     eventSink = eventSink,
 )
 
