@@ -59,7 +59,7 @@ class LoginFlowNode @AssistedInject constructor(
     private val oidcActionFlow: OidcActionFlow,
 ) : BaseFlowNode<LoginFlowNode.NavTarget>(
     backstack = BackStack(
-        initialElement = NavTarget.OnBoarding,
+        initialElement = NavTarget.LoginPassword,
         savedStateMap = buildContext.savedStateMap,
     ),
     buildContext = buildContext,

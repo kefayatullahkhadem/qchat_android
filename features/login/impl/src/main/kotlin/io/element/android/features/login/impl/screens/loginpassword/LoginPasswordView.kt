@@ -70,14 +70,13 @@ import io.element.android.libraries.ui.strings.CommonStrings
 @Composable
 fun LoginPasswordView(
     state: LoginPasswordState,
-    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val autofillManager = LocalAutofillManager.current
 
+    // Handle back button - just cancel autofill since there's no previous screen
     BackHandler {
         autofillManager?.cancel()
-        onBackClick()
     }
 
     val isLoading by remember(state.loginAction) {
@@ -101,12 +100,6 @@ fun LoginPasswordView(
         topBar = {
             TopAppBar(
                 title = {},
-                navigationIcon = {
-                    BackButton(onClick = {
-                        autofillManager?.cancel()
-                        onBackClick()
-                    })
-                },
             )
         }
     ) { padding ->
@@ -126,8 +119,8 @@ fun LoginPasswordView(
                 modifier = Modifier.padding(top = 20.dp, start = 16.dp, end = 16.dp),
                 iconStyle = BigIcon.Style.Default(CompoundIcons.UserProfileSolid()),
                 title = stringResource(
-                    id = R.string.screen_account_provider_signin_title,
-                    state.accountProvider.title
+                    id = R.string.screen_login_title_with_app_name,
+                    state.appName
                 ),
                 subTitle = stringResource(id = R.string.screen_login_subtitle)
             )
@@ -292,6 +285,5 @@ private fun LoginErrorDialog(error: Throwable, onDismiss: () -> Unit) {
 internal fun LoginPasswordViewPreview(@PreviewParameter(LoginPasswordStateProvider::class) state: LoginPasswordState) = ElementPreview {
     LoginPasswordView(
         state = state,
-        onBackClick = {},
     )
 }

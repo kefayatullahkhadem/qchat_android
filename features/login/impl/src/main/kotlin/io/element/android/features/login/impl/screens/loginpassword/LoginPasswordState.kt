@@ -17,6 +17,7 @@ data class LoginPasswordState(
     val accountProvider: AccountProvider,
     val formState: LoginFormState,
     val loginAction: AsyncData<SessionId>,
+    val appName: String,
     val eventSink: (LoginPasswordEvents) -> Unit
 ) {
     val submitEnabled: Boolean
