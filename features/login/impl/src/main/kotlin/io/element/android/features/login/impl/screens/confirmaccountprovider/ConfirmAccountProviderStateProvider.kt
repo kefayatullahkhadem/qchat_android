@@ -32,10 +32,12 @@ private fun aConfirmAccountProviderState(
     accountProvider: AccountProvider = anAccountProvider(),
     isAccountCreation: Boolean = false,
     loginMode: AsyncData<LoginMode> = AsyncData.Uninitialized,
+    canChangeAccountProvider: Boolean = true,
     eventSink: (ConfirmAccountProviderEvents) -> Unit = {},
 ) = ConfirmAccountProviderState(
     accountProvider = accountProvider,
     isAccountCreation = isAccountCreation,
     loginMode = loginMode,
+    canChangeAccountProvider = canChangeAccountProvider,
     eventSink = eventSink
 )
