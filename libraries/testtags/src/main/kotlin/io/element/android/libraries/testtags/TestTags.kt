@@ -23,6 +23,7 @@ object TestTags {
     val loginEmailUsername = TestTag("login-email_username")
     val loginPassword = TestTag("login-password")
     val loginContinue = TestTag("login-continue")
+    val loginCreateAccount = TestTag("login-create_account")
 
     /**
      * Verification screen.

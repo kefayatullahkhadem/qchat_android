@@ -71,6 +71,7 @@ import io.element.android.libraries.ui.strings.CommonStrings
 fun LoginPasswordView(
     state: LoginPasswordState,
     modifier: Modifier = Modifier,
+    onCreateAccountContinue: (String) -> Unit = {},
 ) {
     val autofillManager = LocalAutofillManager.current
 
@@ -148,6 +149,21 @@ fun LoginPasswordView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag(TestTags.loginContinue)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        text = stringResource(R.string.screen_create_account_title),
+                        showProgress = false,
+                        onClick = {
+                            // Use the same server as configured for login
+                            val serverUrl = state.accountProvider.url.ifEmpty { "https://chat.testers.fun" }
+                            val registrationUrl = "${serverUrl}/_matrix/static/#/register"
+                            onCreateAccountContinue(registrationUrl)
+                        },
+                        enabled = !isLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(TestTags.loginCreateAccount)
                     )
                     Spacer(modifier = Modifier.height(48.dp))
                 }
@@ -285,5 +301,6 @@ private fun LoginErrorDialog(error: Throwable, onDismiss: () -> Unit) {
 internal fun LoginPasswordViewPreview(@PreviewParameter(LoginPasswordStateProvider::class) state: LoginPasswordState) = ElementPreview {
     LoginPasswordView(
         state = state,
+        onCreateAccountContinue = {},
     )
 }

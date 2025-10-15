@@ -27,8 +27,8 @@ class AccountProviderDataSource(
                 AccountProvider(
                     url = url,
                     subtitle = null,
-                    isPublic = url == AuthenticationConfig.MATRIX_ORG_URL,
-                    isMatrixOrg = url == AuthenticationConfig.MATRIX_ORG_URL,
+                    isPublic = false, // chat.testers.fun is not a public server like matrix.org
+                    isMatrixOrg = false, // this is not matrix.org
                 )
             }
 
