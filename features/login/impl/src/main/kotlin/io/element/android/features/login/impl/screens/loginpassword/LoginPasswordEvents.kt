@@ -12,4 +12,5 @@ sealed interface LoginPasswordEvents {
     data class SetPassword(val password: String) : LoginPasswordEvents
     data object Submit : LoginPasswordEvents
     data object ClearError : LoginPasswordEvents
+    data object CreateAccount : LoginPasswordEvents
 }

@@ -64,6 +64,9 @@ class LoginPasswordPresenter @Inject constructor(
                     localCoroutineScope.submit(formState.value, loginAction)
                 }
                 LoginPasswordEvents.ClearError -> loginAction.value = AsyncData.Uninitialized
+                LoginPasswordEvents.CreateAccount -> {
+                    // This event is now handled directly in the view
+                }
             }
         }
 
