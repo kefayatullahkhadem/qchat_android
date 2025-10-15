@@ -16,6 +16,11 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
+import com.bumble.appyx.core.plugin.plugins
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import io.element.android.anvilannotations.ContributesNode
+import io.element.android.libraries.di.AppScope
 
 @ContributesNode(AppScope::class)
 @AssistedInject
@@ -24,12 +29,21 @@ class LoginPasswordNode(
     @Assisted plugins: List<Plugin>,
     private val presenter: LoginPasswordPresenter,
 ) : Node(buildContext, plugins = plugins) {
+    interface Callback : Plugin {
+        fun onCreateAccountContinue(url: String)
+    }
+
+    private fun onCreateAccountContinue(url: String) {
+        plugins<Callback>().forEach { it.onCreateAccountContinue(url) }
+    }
+
     @Composable
     override fun View(modifier: Modifier) {
         val state = presenter.present()
         LoginPasswordView(
             state = state,
             modifier = modifier,
+            onCreateAccountContinue = ::onCreateAccountContinue,
         )
     }
 }

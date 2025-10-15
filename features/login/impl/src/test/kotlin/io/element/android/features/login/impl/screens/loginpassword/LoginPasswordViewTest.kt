@@ -177,14 +177,29 @@ class LoginPasswordViewTest {
             LoginPasswordEvents.Submit
         )
     }
+
+    @Test
+    fun `clicking on Create Account calls onCreateAccountContinue callback`() {
+        val eventsRecorder = EventsRecorder<String>()
+        rule.setLoginPasswordView(
+            aLoginPasswordState(),
+            onCreateAccountContinue = eventsRecorder::recordEvent,
+        )
+        rule.onNodeWithTag(TestTags.loginCreateAccount.value).performClick()
+        // Should call the callback with a registration URL
+        assert(eventsRecorder.size == 1)
+        assert(eventsRecorder.getEvents().first().contains("register"))
+    }
 }
 
 private fun <R : TestRule> AndroidComposeTestRule<R, ComponentActivity>.setLoginPasswordView(
     state: LoginPasswordState,
+    onCreateAccountContinue: (String) -> Unit = {},
 ) {
     setContent {
         LoginPasswordView(
             state = state,
+            onCreateAccountContinue = onCreateAccountContinue,
         )
     }
 }

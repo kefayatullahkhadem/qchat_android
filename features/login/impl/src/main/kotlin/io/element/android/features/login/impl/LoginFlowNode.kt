@@ -242,7 +242,12 @@ class LoginFlowNode(
                 createNode<SearchAccountProviderNode>(buildContext, plugins = listOf(callback))
             }
             NavTarget.LoginPassword -> {
-                createNode<LoginPasswordNode>(buildContext)
+                val callback = object : LoginPasswordNode.Callback {
+                    override fun onCreateAccountContinue(url: String) {
+                        backstack.push(NavTarget.CreateAccount(url))
+                    }
+                }
+                createNode<LoginPasswordNode>(buildContext, listOf(callback))
             }
             is NavTarget.CreateAccount -> {
                 val inputs = CreateAccountNode.Inputs(
