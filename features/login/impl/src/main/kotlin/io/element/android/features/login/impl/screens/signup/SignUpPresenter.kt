@@ -23,6 +23,7 @@ import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.extensions.flatMap
 import io.element.android.libraries.core.meta.BuildMeta
 import io.element.android.libraries.matrix.api.auth.MatrixAuthenticationService
+import io.element.android.libraries.matrix.api.auth.external.ExternalSession
 import io.element.android.libraries.matrix.api.core.SessionId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -88,13 +89,26 @@ class SignUpPresenter(
         signUpActionState.value = AsyncData.Loading()
 
         // Register the user using Matrix API
+        // With inhibit_login=false, we get an access token immediately without needing to login again
         registrationService.register(
             serverUrl = serverUrl,
             username = formState.username.trim(),
             password = formState.password
-        ).flatMap { registrationResult ->
-            // After successful registration, login with the credentials
-            authenticationService.login(formState.username.trim(), formState.password)
+        ).map { registrationResult ->
+            // Create ExternalSession from the registration result
+            // Since this is a brand new account (first device), the SDK will mark it as verified automatically
+            ExternalSession(
+                userId = registrationResult.userId,
+                deviceId = registrationResult.deviceId,
+                accessToken = registrationResult.accessToken,
+                refreshToken = null, // Matrix registration doesn't provide refresh token
+                homeserverUrl = serverUrl,
+                slidingSyncProxy = null // Use default sliding sync configuration
+            )
+        }.flatMap { externalSession ->
+            // Import the session created by our registration
+            // This is the first device for this account, so it should be automatically verified
+            authenticationService.importCreatedSession(externalSession)
         }.onSuccess { sessionId ->
             signUpActionState.value = AsyncData.Success(sessionId)
         }.onFailure { failure ->
