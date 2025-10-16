@@ -37,6 +37,7 @@ import io.element.android.features.login.impl.screens.createaccount.CreateAccoun
 import io.element.android.features.login.impl.screens.loginpassword.LoginPasswordNode
 import io.element.android.features.login.impl.screens.onboarding.OnBoardingNode
 import io.element.android.features.login.impl.screens.searchaccountprovider.SearchAccountProviderNode
+import io.element.android.features.login.impl.screens.signup.SignUpNode
 import io.element.android.libraries.androidutils.browser.openUrlInChromeCustomTab
 import io.element.android.libraries.architecture.BackstackView
 import io.element.android.libraries.architecture.BaseFlowNode
@@ -117,6 +118,9 @@ class LoginFlowNode(
 
         @Parcelize
         data object LoginPassword : NavTarget
+
+        @Parcelize
+        data object SignUp : NavTarget
 
         @Parcelize
         data class CreateAccount(val url: String) : NavTarget
@@ -244,10 +248,14 @@ class LoginFlowNode(
             NavTarget.LoginPassword -> {
                 val callback = object : LoginPasswordNode.Callback {
                     override fun onCreateAccountContinue(url: String) {
-                        backstack.push(NavTarget.CreateAccount(url))
+                        // Navigate to native sign-up screen instead of WebView
+                        backstack.push(NavTarget.SignUp)
                     }
                 }
                 createNode<LoginPasswordNode>(buildContext, listOf(callback))
+            }
+            NavTarget.SignUp -> {
+                createNode<SignUpNode>(buildContext)
             }
             is NavTarget.CreateAccount -> {
                 val inputs = CreateAccountNode.Inputs(
