@@ -34,7 +34,7 @@ dependencyResolutionManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "eChat"
+rootProject.name = "qChat"
 include(":app")
 include(":appnav")
 include(":appconfig")

@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 class LoginPasswordPresenter(
     private val authenticationService: MatrixAuthenticationService,
     private val accountProviderDataSource: AccountProviderDataSource,
-    private val defaultLoginUserStory: DefaultLoginUserStory,
     private val buildMeta: BuildMeta,
 ) : Presenter<LoginPasswordState> {
     @Composable
