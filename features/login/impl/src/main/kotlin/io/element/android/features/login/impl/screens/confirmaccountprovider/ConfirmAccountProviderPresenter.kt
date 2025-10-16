@@ -15,9 +15,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import io.element.android.features.enterprise.api.EnterpriseService
 import io.element.android.features.enterprise.api.canConnectToAnyHomeserver
 import io.element.android.features.login.impl.accountprovider.AccountProviderDataSource

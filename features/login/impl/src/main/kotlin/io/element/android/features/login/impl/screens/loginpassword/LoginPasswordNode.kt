@@ -12,15 +12,11 @@ import androidx.compose.ui.Modifier
 import com.bumble.appyx.core.modality.BuildContext
 import com.bumble.appyx.core.node.Node
 import com.bumble.appyx.core.plugin.Plugin
+import com.bumble.appyx.core.plugin.plugins
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import io.element.android.annotations.ContributesNode
-import com.bumble.appyx.core.plugin.plugins
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
-import io.element.android.anvilannotations.ContributesNode
-import io.element.android.libraries.di.AppScope
 
 @ContributesNode(AppScope::class)
 @AssistedInject

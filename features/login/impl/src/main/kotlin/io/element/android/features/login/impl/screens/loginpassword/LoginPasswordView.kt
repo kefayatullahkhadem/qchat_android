@@ -156,7 +156,7 @@ fun LoginPasswordView(
                         showProgress = false,
                         onClick = {
                             // Use the same server as configured for login
-                            val serverUrl = state.accountProvider.url.ifEmpty { "https://chat.testers.fun" }
+                            val serverUrl = state.accountProvider.url.ifEmpty { "https://qchat.testers.fun" }
                             val registrationUrl = "${serverUrl}/_matrix/static/#/register"
                             onCreateAccountContinue(registrationUrl)
                         },

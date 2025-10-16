@@ -131,12 +131,10 @@ class LoginPasswordPresenterTest {
     private fun createLoginPasswordPresenter(
         authenticationService: FakeMatrixAuthenticationService = FakeMatrixAuthenticationService(),
         accountProviderDataSource: AccountProviderDataSource = AccountProviderDataSource(FakeEnterpriseService()),
-        defaultLoginUserStory: DefaultLoginUserStory = DefaultLoginUserStory(),
         buildMeta: BuildMeta = aBuildMeta()
     ): LoginPasswordPresenter = LoginPasswordPresenter(
         authenticationService = authenticationService,
         accountProviderDataSource = accountProviderDataSource,
-        defaultLoginUserStory = defaultLoginUserStory,
         buildMeta = buildMeta,
     )
 }
