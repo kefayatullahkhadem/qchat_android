@@ -5,9 +5,8 @@
  * Please see LICENSE files in the repository root for full details.
  */
 
-package io.element.android.features.login.impl.screens.loginpassword
+package io.element.android.features.login.impl.screens.signup
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
@@ -41,7 +39,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
@@ -55,11 +52,10 @@ import io.element.android.libraries.designsystem.components.button.BackButton
 import io.element.android.libraries.designsystem.components.dialogs.ErrorDialog
 import io.element.android.libraries.designsystem.components.form.textFieldState
 import io.element.android.libraries.designsystem.modifiers.onTabOrEnterKeyFocusNext
-import io.element.android.libraries.designsystem.preview.ElementPreview
-import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.theme.components.Button
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.Scaffold
+import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.designsystem.theme.components.TextField
 import io.element.android.libraries.designsystem.theme.components.TopAppBar
 import io.element.android.libraries.testtags.TestTags
@@ -68,32 +64,21 @@ import io.element.android.libraries.ui.strings.CommonStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginPasswordView(
-    state: LoginPasswordState,
+fun SignUpView(
+    state: SignUpState,
+    onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onCreateAccountContinue: (String) -> Unit = {},
 ) {
-    val autofillManager = LocalAutofillManager.current
-
-    // Handle back button - just cancel autofill since there's no previous screen
-    BackHandler {
-        autofillManager?.cancel()
-    }
-
-    val isLoading by remember(state.loginAction) {
+    val isLoading by remember(state.signUpAction) {
         derivedStateOf {
-            state.loginAction is AsyncData.Loading
+            state.signUpAction is AsyncData.Loading
         }
     }
     val focusManager = LocalFocusManager.current
 
     fun submit() {
-        // Clear focus to prevent keyboard issues with textfields
         focusManager.clearFocus(force = true)
-
-        autofillManager?.commit()
-
-        state.eventSink(LoginPasswordEvents.Submit)
+        state.eventSink(SignUpEvents.Submit)
     }
 
     Scaffold(
@@ -101,6 +86,9 @@ fun LoginPasswordView(
         topBar = {
             TopAppBar(
                 title = {},
+                navigationIcon = {
+                    BackButton(onClick = onBackClick)
+                },
             )
         }
     ) { padding ->
@@ -119,14 +107,11 @@ fun LoginPasswordView(
             IconTitleSubtitleMolecule(
                 modifier = Modifier.padding(top = 20.dp, start = 16.dp, end = 16.dp),
                 iconStyle = BigIcon.Style.Default(CompoundIcons.UserProfileSolid()),
-                title = stringResource(
-                    id = R.string.screen_login_title_with_app_name,
-                    state.appName
-                ),
+                title = stringResource(R.string.screen_create_account_title),
                 subTitle = stringResource(id = R.string.screen_login_subtitle)
             )
             Spacer(Modifier.height(40.dp))
-            LoginForm(
+            SignUpForm(
                 state = state,
                 isLoading = isLoading,
                 onSubmit = ::submit
@@ -142,7 +127,7 @@ fun LoginPasswordView(
             ) {
                 ButtonColumnMolecule {
                     Button(
-                        text = stringResource(CommonStrings.action_continue),
+                        text = stringResource(R.string.screen_create_account_title),
                         showProgress = isLoading,
                         onClick = ::submit,
                         enabled = state.submitEnabled || isLoading,
@@ -150,26 +135,13 @@ fun LoginPasswordView(
                             .fillMaxWidth()
                             .testTag(TestTags.loginContinue)
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        text = stringResource(R.string.screen_create_account_title),
-                        showProgress = false,
-                        onClick = {
-                            // Navigate to native sign-up screen
-                            onCreateAccountContinue("")
-                        },
-                        enabled = !isLoading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag(TestTags.loginCreateAccount)
-                    )
                     Spacer(modifier = Modifier.height(48.dp))
                 }
             }
 
-            if (state.loginAction is AsyncData.Failure) {
-                LoginErrorDialog(error = state.loginAction.error, onDismiss = {
-                    state.eventSink(LoginPasswordEvents.ClearError)
+            if (state.signUpAction is AsyncData.Failure) {
+                SignUpErrorDialog(error = state.signUpAction.error, onDismiss = {
+                    state.eventSink(SignUpEvents.ClearError)
                 })
             }
         }
@@ -177,21 +149,22 @@ fun LoginPasswordView(
 }
 
 @Composable
-private fun LoginForm(
-    state: LoginPasswordState,
+private fun SignUpForm(
+    state: SignUpState,
     isLoading: Boolean,
     onSubmit: () -> Unit,
 ) {
-    var loginFieldState by textFieldState(stateValue = state.formState.login)
+    var usernameFieldState by textFieldState(stateValue = state.formState.username)
     var passwordFieldState by textFieldState(stateValue = state.formState.password)
+    var confirmPasswordFieldState by textFieldState(stateValue = state.formState.confirmPassword)
 
     val focusManager = LocalFocusManager.current
     val eventSink = state.eventSink
 
     Column {
         TextField(
-            label = stringResource(R.string.screen_login_form_header),
-            value = loginFieldState,
+            label = stringResource(CommonStrings.common_username),
+            value = usernameFieldState,
             enabled = !isLoading,
             modifier = Modifier
                 .fillMaxWidth()
@@ -203,22 +176,22 @@ private fun LoginForm(
             placeholder = stringResource(CommonStrings.common_username),
             onValueChange = {
                 val sanitized = it.sanitize()
-                loginFieldState = sanitized
-                eventSink(LoginPasswordEvents.SetLogin(sanitized))
+                usernameFieldState = sanitized
+                eventSink(SignUpEvents.SetUsername(sanitized))
             },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
+                keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Next
             ),
             keyboardActions = KeyboardActions(onNext = {
                 focusManager.moveFocus(FocusDirection.Down)
             }),
             singleLine = true,
-            trailingIcon = if (loginFieldState.isNotEmpty()) {
+            trailingIcon = if (usernameFieldState.isNotEmpty()) {
                 {
                     Box(Modifier.clickable {
-                        loginFieldState = ""
-                        eventSink(LoginPasswordEvents.SetLogin(""))
+                        usernameFieldState = ""
+                        eventSink(SignUpEvents.SetUsername(""))
                     }) {
                         Icon(
                             imageVector = CompoundIcons.Close(),
@@ -231,15 +204,17 @@ private fun LoginForm(
                 null
             },
         )
+
         var passwordVisible by remember { mutableStateOf(false) }
-        if (state.loginAction is AsyncData.Loading) {
-            // Ensure password is hidden when user submits the form
+        if (state.signUpAction is AsyncData.Loading) {
             passwordVisible = false
         }
+
         Spacer(Modifier.height(20.dp))
         TextField(
             value = passwordFieldState,
             enabled = !isLoading,
+            label = stringResource(CommonStrings.common_password),
             modifier = Modifier
                 .fillMaxWidth()
                 .onTabOrEnterKeyFocusNext(focusManager)
@@ -250,9 +225,49 @@ private fun LoginForm(
             onValueChange = {
                 val sanitized = it.sanitize()
                 passwordFieldState = sanitized
-                eventSink(LoginPasswordEvents.SetPassword(sanitized))
+                eventSink(SignUpEvents.SetPassword(sanitized))
             },
             placeholder = stringResource(CommonStrings.common_password),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                val image =
+                    if (passwordVisible) CompoundIcons.VisibilityOn() else CompoundIcons.VisibilityOff()
+                val description =
+                    if (passwordVisible) stringResource(CommonStrings.a11y_hide_password) else stringResource(CommonStrings.a11y_show_password)
+                Box(Modifier.clickable { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = image,
+                        contentDescription = description,
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Next,
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { focusManager.moveFocus(FocusDirection.Down) }
+            ),
+            singleLine = true,
+        )
+
+        Spacer(Modifier.height(20.dp))
+        TextField(
+            value = confirmPasswordFieldState,
+            enabled = !isLoading,
+            label = stringResource(CommonStrings.action_confirm_password),
+            modifier = Modifier
+                .fillMaxWidth()
+                .onTabOrEnterKeyFocusNext(focusManager)
+                .semantics {
+                    contentType = ContentType.Password
+                },
+            onValueChange = {
+                val sanitized = it.sanitize()
+                confirmPasswordFieldState = sanitized
+                eventSink(SignUpEvents.SetConfirmPassword(sanitized))
+            },
+            placeholder = stringResource(CommonStrings.action_confirm_password),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
                 val image =
@@ -275,30 +290,40 @@ private fun LoginForm(
             ),
             singleLine = true,
         )
+
+        // Password validation hint
+        if (state.formState.password.isNotEmpty() && state.formState.password.length < 8) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Password must be at least 8 characters",
+                style = ElementTheme.typography.fontBodySmRegular,
+                color = ElementTheme.colors.textCriticalPrimary,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+
+        // Password match validation
+        if (state.formState.confirmPassword.isNotEmpty() && state.formState.password != state.formState.confirmPassword) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "Passwords do not match",
+                style = ElementTheme.typography.fontBodySmRegular,
+                color = ElementTheme.colors.textCriticalPrimary,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
     }
 }
 
-/**
- * Ensure that the string does not contain any new line characters, which can happen when pasting values.
- */
 private fun String.sanitize(): String {
     return replace("\n", "")
 }
 
 @Composable
-private fun LoginErrorDialog(error: Throwable, onDismiss: () -> Unit) {
+private fun SignUpErrorDialog(error: Throwable, onDismiss: () -> Unit) {
     ErrorDialog(
         title = stringResource(id = CommonStrings.dialog_title_error),
-        content = stringResource(loginError(error)),
+        content = error.message ?: stringResource(loginError(error)),
         onSubmit = onDismiss
-    )
-}
-
-@PreviewsDayNight
-@Composable
-internal fun LoginPasswordViewPreview(@PreviewParameter(LoginPasswordStateProvider::class) state: LoginPasswordState) = ElementPreview {
-    LoginPasswordView(
-        state = state,
-        onCreateAccountContinue = {},
     )
 }

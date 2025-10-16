@@ -45,9 +45,11 @@ dependencies {
     implementation(projects.libraries.oidc.api)
     implementation(projects.libraries.uiUtils)
     implementation(projects.libraries.wellknown.api)
+    implementation(projects.libraries.network)
     implementation(libs.androidx.browser)
     implementation(libs.androidx.webkit)
     implementation(libs.serialization.json)
+    implementation(libs.network.okhttp)
     api(projects.features.login.api)
 
     testCommonDependencies(libs, true)
