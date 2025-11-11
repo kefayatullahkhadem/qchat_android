@@ -29,9 +29,9 @@ class DefaultEnterpriseService : EnterpriseService {
 
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
 
-    override fun defaultHomeserverList(): List<String> = listOf("https://qchat.testers.fun")
+    override fun defaultHomeserverList(): List<String> = listOf("https://qchat.eapp.click")
     override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = 
-        homeserverUrl == "https://qchat.testers.fun"
+        homeserverUrl == "https://qchat.eapp.click"
 
     override fun overrideBrandColor(brandColor: String?) = Unit
 

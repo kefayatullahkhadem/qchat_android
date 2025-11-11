@@ -39,7 +39,7 @@ class RegistrationService(
     /**
      * Registers a new user account on the Matrix homeserver.
      *
-     * @param serverUrl The homeserver URL (e.g., "https://qchat.testers.fun")
+     * @param serverUrl The homeserver URL (e.g., "https://qchat.eapp.click")
      * @param username The desired username (localpart only, without @domain)
      * @param password The user's password
      * @return Result containing registration details or error
