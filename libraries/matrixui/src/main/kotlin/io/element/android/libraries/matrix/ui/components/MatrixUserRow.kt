@@ -26,7 +26,8 @@ fun MatrixUserRow(
 ) = UserRow(
     avatarData = matrixUser.getAvatarData(avatarSize),
     name = matrixUser.getBestName(),
-    subtext = if (matrixUser.displayName.isNullOrEmpty()) null else matrixUser.userId.value,
+    // Show only username without server domain (e.g., "john" instead of "@john:qchat.eapp.click")
+    subtext = if (matrixUser.displayName.isNullOrEmpty()) null else matrixUser.userId.extractedDisplayName,
     modifier = modifier,
     trailingContent = trailingContent,
 )

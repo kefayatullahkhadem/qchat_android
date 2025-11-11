@@ -31,7 +31,8 @@ fun SearchSingleUserResultItem(
         UnresolvedUserRow(
             modifier = modifier.clickable(onClick = onClick),
             avatarData = searchResult.matrixUser.getAvatarData(AvatarSize.UserListItem),
-            id = searchResult.matrixUser.userId.value,
+            // Show only username without server domain (e.g., "john" instead of "@john:qchat.eapp.click")
+            id = searchResult.matrixUser.userId.extractedDisplayName,
         )
     } else {
         MatrixUserRow(

@@ -31,12 +31,14 @@ fun SearchMultipleUsersResultItem(
     val data = if (searchResult.isUnresolved) {
         CheckableUserRowData.Unresolved(
             avatarData = searchResult.matrixUser.getAvatarData(AvatarSize.UserListItem),
-            id = searchResult.matrixUser.userId.value,
+            // Show only username without server domain (e.g., "john" instead of "@john:qchat.eapp.click")
+            id = searchResult.matrixUser.userId.extractedDisplayName,
         )
     } else {
         CheckableUserRowData.Resolved(
             name = searchResult.matrixUser.getBestName(),
-            subtext = if (searchResult.matrixUser.displayName.isNullOrEmpty()) null else searchResult.matrixUser.userId.value,
+            // Show only username without server domain (e.g., "john" instead of "@john:qchat.eapp.click")
+            subtext = if (searchResult.matrixUser.displayName.isNullOrEmpty()) null else searchResult.matrixUser.userId.extractedDisplayName,
             avatarData = searchResult.matrixUser.getAvatarData(AvatarSize.UserListItem),
         )
     }

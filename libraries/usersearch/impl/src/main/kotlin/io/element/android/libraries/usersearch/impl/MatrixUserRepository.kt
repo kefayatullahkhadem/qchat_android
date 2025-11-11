@@ -29,11 +29,27 @@ class MatrixUserRepository(
     private val dataSource: UserListDataSource
 ) : UserRepository {
     override fun search(query: String): Flow<UserSearchResultState> = flow {
-        val shouldQueryProfile = MatrixPatterns.isUserId(query) && !client.isMe(UserId(query))
+        // Auto-append server domain if user only enters a username
+        // This allows users to search for "john" instead of requiring "@john:qchat.eapp.click"
+        val normalizedQuery = if (!query.startsWith("@") && !query.contains(":") && query.isNotEmpty()) {
+            // User typed just a username, convert it to a full Matrix ID
+            val homeserver = client.sessionId.value.substringAfter(":")
+            "@$query:$homeserver"
+        } else {
+            query
+        }
+
+        val shouldQueryProfile = MatrixPatterns.isUserId(normalizedQuery) && !client.isMe(UserId(normalizedQuery))
         val shouldFetchSearchResults = query.length >= MINIMUM_SEARCH_LENGTH
         // If the search term is a MXID that's not ours, we'll show a 'fake' result for that user, then update it when we get search results.
         val fakeSearchResult = if (shouldQueryProfile) {
-            UserSearchResult(MatrixUser(UserId(query)))
+            // Create fake user with display name set to just the username (without server domain)
+            // This ensures the loading state shows only "john" instead of "@john:qchat.eapp.click"
+            val userId = UserId(normalizedQuery)
+            UserSearchResult(MatrixUser(
+                userId = userId,
+                displayName = userId.extractedDisplayName  // Extract just "john" from "@john:qchat.eapp.click"
+            ))
         } else {
             null
         }
@@ -41,27 +57,40 @@ class MatrixUserRepository(
             emit(UserSearchResultState(isSearching = shouldFetchSearchResults, results = listOfNotNull(fakeSearchResult)))
         }
         if (shouldFetchSearchResults) {
-            val results = fetchSearchResults(query, shouldQueryProfile)
+            // Search using the original query for partial username matching
+            // Then check if we need to explicitly query the normalized full Matrix ID profile
+            val results = fetchSearchResults(query, normalizedQuery, shouldQueryProfile)
             emit(results)
         }
     }
 
-    private suspend fun fetchSearchResults(query: String, shouldQueryProfile: Boolean): UserSearchResultState {
+    private suspend fun fetchSearchResults(
+        searchQuery: String,
+        normalizedUserId: String,
+        shouldQueryProfile: Boolean
+    ): UserSearchResultState {
         // Debounce
         delay(DEBOUNCE_TIME_MILLIS)
+        // Search using the original query (e.g., "john") for partial matching
         val results = dataSource
-            .search(query, MAXIMUM_SEARCH_RESULTS)
+            .search(searchQuery, MAXIMUM_SEARCH_RESULTS)
             .filter { !client.isMe(it.userId) }
             .map { UserSearchResult(it) }
             .toMutableList()
 
         // If the query is another user's MXID and the result doesn't contain that user ID, query the profile information explicitly
-        if (shouldQueryProfile && results.none { it.matrixUser.userId.value == query }) {
+        if (shouldQueryProfile && results.none { it.matrixUser.userId.value == normalizedUserId }) {
             results.add(
                 0,
-                dataSource.getProfile(UserId(query))
+                dataSource.getProfile(UserId(normalizedUserId))
                     ?.let { UserSearchResult(it) }
-                    ?: UserSearchResult(MatrixUser(UserId(query)), isUnresolved = true)
+                    ?: UserSearchResult(
+                        MatrixUser(
+                            userId = UserId(normalizedUserId),
+                            displayName = UserId(normalizedUserId).extractedDisplayName
+                        ),
+                        isUnresolved = true
+                    )
             )
         }
 
